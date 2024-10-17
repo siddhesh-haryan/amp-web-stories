@@ -1,7 +1,8 @@
-"use client"
+// pages/stories.tsx
+
 import React from 'react';
+import { NextPage } from 'next';
 import Head from 'next/head';
-import Script from 'next/script';
 
 // TypeScript declarations for AMP components
 declare global {
@@ -23,7 +24,6 @@ interface StoryPage {
   imageUrl: string;
 }
 
-// Bookend data defined outside component to avoid re-renders
 const bookendData = {
   shareProviders: ['facebook', 'twitter', 'email'],
   components: [
@@ -36,19 +36,19 @@ const bookendData = {
       links: [
         {
           text: 'Visit our website',
-          url: 'https://24x7servicescenters.com'
+          url: 'https://example.com'
         }
       ]
     }
   ]
 };
 
-const AMPWebStory: React.FC = () => {
+const StoriesPage: NextPage = () => {
   const storyMetadata = {
     title: "My Travel Adventure",
-    posterImage: "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_640.jpg",
+    posterImage: "/api/placeholder/1080/1920",
     publisher: "Your Name",
-    publisherLogoSrc: "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_640.jpg",
+    publisherLogoSrc: "/api/placeholder/100/100",
   };
 
   const pages: StoryPage[] = [
@@ -56,7 +56,7 @@ const AMPWebStory: React.FC = () => {
       id: "cover",
       title: "Amazing Mountain Journey",
       description: "Follow my adventure through the mountains",
-      imageUrl: "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_640.jpg"  // Using placeholder to avoid external URL issues
+      imageUrl: "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_640.jpg"
     },
     {
       id: "page1",
@@ -75,29 +75,32 @@ const AMPWebStory: React.FC = () => {
   return (
     <>
       <Head>
-        <script 
-          async 
-          custom-element="amp-story" 
-          src="https://cdn.ampproject.org/v0/amp-story-1.0.js"
-        />
-        <script 
-          async 
-          custom-element="amp-video" 
-          src="https://cdn.ampproject.org/v0/amp-video-0.1.js"
-        />
+        <title>{storyMetadata.title}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1"/>
+        <script async src="https://cdn.ampproject.org/v0.js"></script>
+        <script async custom-element="amp-story" src="https://cdn.ampproject.org/v0/amp-story-1.0.js"></script>
+        <link rel="canonical" href="/stories"/>
         <style amp-boilerplate="">{`body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}`}</style>
         <noscript>
           <style amp-boilerplate="">{`body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}`}</style>
         </noscript>
+        <style amp-custom>{`
+          amp-story {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          }
+          .story-overlay {
+            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 50%);
+            padding: 2rem;
+          }
+        `}</style>
       </Head>
 
       <amp-story
-        standalone="true"
+        standalone=""
         title={storyMetadata.title}
         publisher={storyMetadata.publisher}
         publisher-logo-src={storyMetadata.publisherLogoSrc}
         poster-portrait-src={storyMetadata.posterImage}
-        supports-landscape="true"
       >
         {pages.map((page) => (
           <amp-story-page key={page.id} id={page.id} auto-advance-after="7s">
@@ -113,9 +116,9 @@ const AMPWebStory: React.FC = () => {
             </amp-story-grid-layer>
             
             <amp-story-grid-layer template="vertical">
-              <div className="flex flex-col h-full justify-end pb-12 p-4">
+              <div className="story-overlay h-full flex flex-col justify-end">
                 <h1 
-                  className="text-white text-4xl font-bold mb-4"
+                  className="text-4xl font-bold text-white mb-4"
                   animate-in="fly-in-bottom"
                   animate-in-delay="0.3s"
                   animate-in-duration="0.5s"
@@ -123,7 +126,7 @@ const AMPWebStory: React.FC = () => {
                   {page.title}
                 </h1>
                 <p 
-                  className="text-white text-xl"
+                  className="text-xl text-white"
                   animate-in="fly-in-bottom"
                   animate-in-delay="0.5s"
                   animate-in-duration="0.5s"
@@ -132,32 +135,21 @@ const AMPWebStory: React.FC = () => {
                 </p>
               </div>
             </amp-story-grid-layer>
-            
-            <amp-story-grid-layer template="vertical">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gray-600">
-                <div 
-                  className="h-full bg-white" 
-                  animate-in="expand" 
-                  animate-in-duration="7s"
-                />
-              </div>
-            </amp-story-grid-layer>
           </amp-story-page>
         ))}
 
         <amp-story-bookend 
           layout="nodisplay"
-          dangerouslySetInnerHTML={{
-            __html: `
-              <script type="application/json">
-                ${JSON.stringify(bookendData)}
-              </script>
-            `
-          }}
+          src="data:json/application;base64,eyJzaGFyZVByb3ZpZGVycyI6WyJmYWNlYm9vayIsInR3aXR0ZXIiLCJlbWFpbCJdLCJjb21wb25lbnRzIjpbeyJ0eXBlIjoiaGVhZGluZyIsInRleHQiOiJGb2xsb3cgdXMgZm9yIG1vcmUgYWR2ZW50dXJlcyJ9LHsidHlwZSI6ImN0YS1saW5rIiwibGlua3MiOlt7InRleHQiOiJWaXNpdCBvdXIgd2Vic2l0ZSIsInVybCI6Imh0dHBzOi8vZXhhbXBsZS5jb20ifV19XX0="
         />
       </amp-story>
     </>
   );
 };
 
-export default AMPWebStory;
+// Enable AMP for this page
+export const config = {
+  amp: true
+};
+
+export default StoriesPage;
